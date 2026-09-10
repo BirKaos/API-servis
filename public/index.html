@@ -282,6 +282,9 @@
     <!-- JavaScript & Gerçek API Entegrasyonu -->
     <script>
         const DOGRU_KEY = "@lanetsikerbaba##@@";
+        let aktifIslem = "tc";
+        let apiSonuclari = [];
+        let aktifSayfa = 0;
 
         window.addEventListener('DOMContentLoaded', () => {
             const kayitliKey = localStorage.getItem('sorgu_panel_key');
@@ -293,4 +296,157 @@
         function keyKontrol(event) {
             event.preventDefault();
             const girilenDeger = document.getElementById('key-input').value.trim();
-            c
+            const hataKutusu = document.getElementById('login-hata');
+
+            if (girilenDeger === DOGRU_KEY) {
+                hataKutusu.classList.add('hidden');
+                localStorage.setItem('sorgu_panel_key', DOGRU_KEY);
+                girisBasariliGoster();
+            } else {
+                hataKutusu.classList.remove('hidden');
+            }
+        }
+
+        function girisBasariliGoster() {
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('app-wrapper').classList.remove('hidden');
+            document.getElementById('app-wrapper').classList.add('flex');
+        }
+
+        function cikisYap() {
+            localStorage.removeItem('sorgu_panel_key');
+            location.reload();
+        }
+
+        function secimYap(islem, baslik, labelMetin) {
+            aktifIslem = islem;
+            
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active', 'bg-slate-800', 'text-white'));
+            const secilenBtn = document.querySelector(`[data-id="${islem}"]`);
+            if(secilenBtn) secilenBtn.classList.add('active', 'bg-slate-800', 'text-white');
+
+            document.getElementById('aktif-islem-badge').innerText = baslik;
+            document.getElementById('form-baslik').innerText = baslik;
+            
+            const container = document.getElementById('input-container');
+            if (islem === 'adsoyad') {
+                container.innerHTML = `
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Ad</label>
+                        <input type="text" id="parametre1" required placeholder="Ad giriniz..." class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Soyad</label>
+                        <input type="text" id="parametre2" required placeholder="Soyad giriniz..." class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent">
+                    </div>`;
+            } else if (islem === 'adaparsel') {
+                container.innerHTML = `
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">İl</label>
+                        <input type="text" id="parametre1" required placeholder="İl giriniz..." class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent">
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">İlçe</label>
+                        <input type="text" id="parametre2" required placeholder="İlçe giriniz..." class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent">
+                    </div>`;
+            } else {
+                container.innerHTML = `
+                    <div class="space-y-2 sm:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">${labelMetin}</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                                <i class="fa-solid fa-keyboard"></i>
+                            </span>
+                            <input type="text" id="parametre1" required placeholder="Değeri giriniz..." class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent font-mono">
+                        </div>
+                    </div>`;
+            }
+        }
+
+        async function sorgula(event) {
+            event.preventDefault();
+            const p1 = document.getElementById('parametre1').value.trim();
+            const p2 = document.getElementById('parametre2') ? document.getElementById('parametre2').value.trim() : "";
+            
+            let url = "";
+            if (aktifIslem === 'adsoyad') url = `https://apiv2.ajaxsystems.fun/adsoyad.php?ad=${encodeURIComponent(p1)}&soyad=${encodeURIComponent(p2)}`;
+            else if (aktifIslem === 'adaparsel') url = `https://apiv2.ajaxsystems.fun/adaparsel.php?il=${encodeURIComponent(p1)}&ilce=${encodeURIComponent(p2)}`;
+            else if (aktifIslem === 'gsmtc') url = `https://apiv2.ajaxsystems.fun/gsmtc.php?gsm=${encodeURIComponent(p1)}&auth=fire`;
+            else url = `https://apiv2.ajaxsystems.fun/${aktifIslem}.php?tc=${encodeURIComponent(p1)}`;
+
+            const btn = document.getElementById('sorgula-btn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>Sorgulanıyor...</span>`;
+
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                apiSonuclari = [];
+                if (Array.isArray(data)) apiSonuclari = data;
+                else if (typeof data === 'object' && data !== null) {
+                    const inner = data.data || data.results || data.result || data;
+                    apiSonuclari = Array.isArray(inner) ? inner : [inner];
+                }
+
+                aktifSayfa = 0;
+                sayfaGuncelle();
+                document.getElementById('sonuc-kutusu').classList.remove('hidden');
+            } catch (err) {
+                alert("Bağlantı hatası veya sunucu yanıt vermedi!");
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i> <span>Sorgula</span>`;
+            }
+        }
+
+        function sayfaGuncelle() {
+            const kutu = document.getElementById('sonuc-icerik');
+            kutu.innerHTML = "";
+
+            if (!apiSonuclari || apiSonuclari.length === 0) {
+                kutu.innerHTML = `<div class="text-rose-400 font-sans">❌ Kayıt bulunamadı.</div>`;
+                document.getElementById('pagination-bar').classList.add('hidden');
+                return;
+            }
+
+            document.getElementById('pagination-bar').classList.remove('hidden');
+            const kayit = apiSonuclari[aktifSayfa];
+            let metin = "";
+
+            if (typeof kayit === 'object' && kayit !== null) {
+                for (let [k, v] of Object.entries(kayit)) {
+                    if (["status", "success", "developer", "version", "message"].includes(k.toLowerCase())) continue;
+                    let vStr = Array.isArray(v) ? v.join(", ") : (v !== null ? v : "YOK");
+                    metin += `<div>├─ <span class="text-accent">${k.toUpperCase()}</span>: ${vStr}</div>`;
+                }
+            } else {
+                metin += `<div>├─ SONUÇ: ${kayit}</div>`;
+            }
+            metin += `<div class="text-slate-500 pt-2">├─ DEVELOPER: @lanetliymis</div><div class="text-slate-500">└─ VERSION: 5.0</div>`;
+
+            kutu.innerHTML = metin;
+            document.getElementById('sayfa-gosterge').innerText = `Kayıt ${aktifSayfa + 1} / ${apiSonuclari.length}`;
+            
+            document.getElementById('prev-btn').disabled = aktifSayfa === 0;
+            document.getElementById('next-btn').disabled = aktifSayfa >= apiSonuclari.length - 1;
+        }
+
+        function oncekiSayfa() { if (aktifSayfa > 0) { aktifSayfa--; sayfaGuncelle(); } }
+        function sonrakiSayfa() { if (aktifSayfa < apiSonuclari.length - 1) { aktifSayfa++; sayfaGuncelle(); } }
+
+        function txtIndir() {
+            if (!apiSonuclari.length) return;
+            let metin = "";
+            apiSonuclari.forEach((k, i) => {
+                metin += `👤 KİŞİ #${i + 1}\n` + JSON.stringify(k, null, 2) + `\n\n${'='.repeat(40)}\n\n`;
+            });
+            const blob = new Blob([metin], { type: "text/plain;charset=utf-8" });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = "sorgu_sonuclari.txt";
+            a.click();
+        }
+    </script>
+</body>
+</html>
