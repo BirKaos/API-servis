@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="tr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorgu Paneli v5.0 | Profesyonel Arayüz</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#0b0f19',
+                        cardbg: '#141c2e',
+                        sidebarbg: '#111827',
+                        accent: '#3b82f6',
+                        accenthover: '#2563eb'
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-darkbg text-slate-100 font-sans min-h-screen flex flex-col selection:bg-accent selection:text-white">
+
+    <!-- LOGIN MODAL / EKRANI -->
+    <div id="login-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-darkbg/95 backdrop-blur-xl px-4">
+        <div class="bg-cardbg border border-slate-800 rounded-3xl p-8 max-w-md w-full shadow-2xl relative overflow-hidden text-center">
+            <div class="absolute -top-24 -right-24 w-48 h-48 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="inline-flex bg-accent/10 text-accent p-4 rounded-2xl border border-accent/20 mb-5 shadow-lg shadow-accent/10">
+                <i class="fa-solid fa-key text-2xl"></i>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-white tracking-wide">Erişim Anahtarı</h2>
+            <p class="text-xs text-slate-400 mt-1.5 mb-6">Paneli kullanabilmek için size özel verilen key değerini giriniz.</p>
+            
+            <form onsubmit="keyKontrol(event)" class="space-y-4 text-left">
+                <div class="space-y-2">
+                    <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">Lisans / Key</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                            <i class="fa-solid fa-lock"></i>
+                        </span>
+                        <input type="password" id="key-input" required placeholder="Key değerini giriniz..." class="w-full bg-slate-900/90 border border-slate-700/80 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all font-mono">
+                    </div>
+                </div>
+                
+                <div id="login-hata" class="text-xs text-rose-400 hidden font-medium bg-rose-500/10 border border-rose-500/20 p-2.5 rounded-xl text-center">
+                    Hatalı anahtar! Lütfen tekrar deneyiniz.
+                </div>
+
+                <button type="submit" class="w-full bg-accent hover:bg-accenthover text-white py-3 rounded-xl text-xs font-bold transition-all shadow-lg shadow-accent/20 uppercase tracking-wider">
+                    Sisteme Giriş Yap
+                </button>
+            </form>
+            
+            <p class="text-[11px] text-slate-500 mt-6">Yetkili Anahtar: <span class="text-slate-400 font-mono">@lanetsikerbaba##@@</span></p>
+        </div>
+    </div>
+
+    <!-- MAIN APP WRAPPER -->
+    <div id="app-wrapper" class="hidden flex-col min-h-screen">
+        <!-- Top Navigation Bar -->
+        <header class="bg-cardbg/80 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-40">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-accent/10 text-accent p-2 rounded-xl border border-accent/20">
+                        <i class="fa-solid fa-shield-halved text-base"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm sm:text-base tracking-wide text-white">Sorgu Paneli <span class="text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded-full ml-1 font-mono">v5.0</span></h1>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="cikisYap()" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all flex items-center space-x-1.5">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Çıkış</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Container -->
+        <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-4 gap-6">
+            
+            <!-- Sidebar Menu -->
+            <aside id="sidebar" class="lg:col-span-1 space-y-4">
+                <div class="bg-cardbg border border-slate-800/80 rounded-2xl p-4 shadow-xl space-y-4">
+                    
+                    <!-- Profil Kartı -->
+                    <div class="flex items-center space-x-3 pb-4 border-b border-slate-800">
+                        <div class="w-11 h-11 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300 text-lg font-bold shadow-inner relative overflow-hidden">
+                            <i class="fa-solid fa-user text-slate-400"></i>
+                        </div>
+                        <div class="overflow-hidden">
+                            <div class="flex items-center space-x-1">
+                                <span class="font-bold text-sm text-white truncate">lanetizm</span>
+                                <i class="fa-solid fa-circle-check text-accent text-xs"></i>
+                            </div>
+                            <p class="text-[11px] text-slate-400">♡ Ücretsiz Üyelik</p>
+                        </div>
+                    </div>
+
+                    <!-- Menü Grupları -->
+                    <nav class="space-y-4 text-xs">
+                        <div class="space-y-1">
+                            <p class="text-[10px] font-semibold text-slate-500 uppercase tracking-wider px-3 mb-1">API Modülleri</p>
+                            
+                            <button onclick="secimYap('tc', 'TC Sorgu', 'TC Kimlik Numarası')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white menu-btn active" data-id="tc">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-id-card w-4 text-accent"></i>
+                                    <span>TC Sorgu</span>
+                                </div>
+                            </button>
+
+                            <button onclick="secimYap('tcpro', 'TC Pro Sorgu', 'TC Kimlik Numarası')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white menu-btn" data-id="tcpro">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-id-badge w-4 text-purple-400"></i>
+                                    <span>TC Pro Sorgu</span>
+                                </div>
+                            </button>
+
+                            <button onclick="secimYap('adsoyad', 'Ad Soyad Sorgu', 'Ad ve Soyad Bilgisi')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white menu-btn" data-id="adsoyad">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-user-pen w-4 text-accent"></i>
+                                    <span>Ad Soyad Sorgu</span>
+                                </div>
+                            </button>
+
+                            <button onclick="secimYap('aile', 'Aile Sorgu', 'TC Kimlik Numarası')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white menu-btn" data-id="aile">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-users w-4 text-accent"></i>
+                                    <span>Aile Sorgu</span>
+                                </div>
+                            </button>
+
+                            <button onclick="secimYap('ailepro', 'Aile Pro Sorgu', 'TC Kimlik Numarası')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white menu-btn" data-id="ailepro">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-people-roof w-4 text-purple-400"></i>
+                                    <span>Aile Pro Sorgu</span>
+                                </div>
+                            </button>
+
+                            <button onclick="secimYap('sulale', 'Sülale Sorgu', 'TC Kimlik Numarası')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white menu-btn" data-id="sulale">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-network-wired w-4 text-accent"></i>
+                                    <span>Sülale Sorgu</span>
+                                </div>
+                            </button>
+
+                            <button onclick="secimYap('tcgsm', 'TC\'den GSM Sorgu', 'TC Kimlik Numarası')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white menu-btn" data-id="tcgsm">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-address-book w-4 text-accent"></i>
+                                    <span>TC'den GSM Sorgu</span>
+                                </div>
+                            </button>
+
+                            <button onclick="secimYap('gsmtc', 'GSM\'den TC Sorgu', 'GSM Numarası')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white menu-btn" data-id="gsmtc">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-mobile-screen w-4 text-accent"></i>
+                                    <span>GSM'den TC Sorgu</span>
+                                </div>
+                            </button>
+
+                            <button onclick="secimYap('eokul', 'E-Okul Sorgu', 'TC Kimlik Numarası')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white menu-btn" data-id="eokul">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-graduation-cap w-4 text-emerald-400"></i>
+                                    <span>E-Okul Sorgu</span>
+                                </div>
+                            </button>
+
+                            <button onclick="secimYap('adres', 'Adres Sorgu', 'TC Kimlik Numarası')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white menu-btn" data-id="adres">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-map-location-dot w-4 text-accent"></i>
+                                    <span>Adres Sorgu</span>
+                                </div>
+                            </button>
+
+                            <button onclick="secimYap('tapu', 'Tapu Sorgu', 'TC Kimlik Numarası')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white menu-btn" data-id="tapu">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-house-chimney w-4 text-amber-400"></i>
+                                    <span>Tapu Sorgu</span>
+                                </div>
+                            </button>
+
+                            <button onclick="secimYap('adaparsel', 'Ada Parsel Sorgu', 'İl ve İlçe Bilgisi')" class="w-full flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white menu-btn" data-id="adaparsel">
+                                <div class="flex items-center space-x-3">
+                                    <i class="fa-solid fa-map w-4 text-accent"></i>
+                                    <span>Ada Parsel Sorgu</span>
+                                </div>
+                            </button>
+                        </div>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Main Content Area -->
+            <section class="lg:col-span-3 space-y-6">
+                
+                <!-- Query Form Card -->
+                <div class="bg-cardbg border border-slate-800/80 rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl pointer-events-none"></div>
+                    
+                    <div class="mb-6">
+                        <span id="aktif-islem-badge" class="text-xs bg-accent/10 text-accent font-semibold px-3 py-1 rounded-full border border-accent/20">TC Sorgu</span>
+                        <h2 id="form-baslik" class="text-xl font-bold text-white mt-2">TC Sorgu</h2>
+                        <p id="form-aciklama" class="text-sm text-slate-400 mt-1">Gerçek API entegrasyonu aktif.</p>
+                    </div>
+
+                    <form id="sorgu-form" onsubmit="sorgula(event)" class="space-y-4">
+                        <div id="input-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="space-y-2 sm:col-span-2">
+                                <label id="input-label" class="block text-xs font-semibold text-slate-300 uppercase tracking-wider">TC Kimlik Numarası</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                                        <i class="fa-solid fa-keyboard"></i>
+                                    </span>
+                                    <input type="text" id="parametre1" required placeholder="Değeri giriniz..." class="w-full bg-slate-900/80 border border-slate-700/80 rounded-xl pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all font-mono">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end space-x-3 pt-2">
+                            <button type="reset" class="px-5 py-2.5 rounded-xl border border-slate-700 text-slate-300 text-xs font-semibold hover:bg-slate-800 transition-all">Temizle</button>
+                            <button type="submit" id="sorgula-btn" class="bg-accent hover:bg-accenthover text-white px-6 py-2.5 rounded-xl text-xs font-semibold transition-all shadow-lg shadow-accent/20 flex items-center space-x-2">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <span>Sorgula</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Results Section -->
+                <div id="sonuc-kutusu" class="bg-cardbg border border-slate-800/80 rounded-2xl p-6 shadow-xl hidden">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 mb-4 border-b border-slate-800 gap-4">
+                        <div>
+                            <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                                <i class="fa-solid fa-square-poll-vertical text-accent"></i>
+                                <span>Sorgu Sonuçları</span>
+                            </h3>
+                            <p id="sonuc-bilgi" class="text-xs text-slate-400 mt-0.5">API Verileri Listeleniyor</p>
+                        </div>
+                        <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                            <button onclick="txtIndir()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all flex items-center space-x-2">
+                                <i class="fa-solid fa-download text-accent"></i>
+                                <span>TXT İndir</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Result Card Content -->
+                    <div id="sonuc-icerik" class="bg-slate-900/90 border border-slate-800 rounded-xl p-4 font-mono text-xs text-slate-300 space-y-1.5 overflow-x-auto">
+                        <!-- API Sonuçları Burada Görüntülenecek -->
+                    </div>
+
+                    <!-- Pagination -->
+                    <div id="pagination-bar" class="flex items-center justify-between mt-4 pt-4 border-t border-slate-800/80">
+                        <button onclick="oncekiSayfa()" id="prev-btn" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+                            <i class="fa-solid fa-chevron-left mr-1"></i> Önceki
+                        </button>
+                        <span id="sayfa-gosterge" class="text-xs text-slate-400 font-medium">Kayıt 1 / 1</span>
+                        <button onclick="sonrakiSayfa()" id="next-btn" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+                            Sonraki <i class="fa-solid fa-chevron-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="mt-auto border-t border-slate-800 bg-cardbg/40 py-4 text-center text-xs text-slate-500">
+            <p>Sorgu Paneli &copy; 2026 &bull; Tüm Hakları Saklıdır. Geliştirici: <span class="text-slate-400 font-mono">@lanetliymis</span></p>
+        </footer>
+    </div>
+
+    <!-- JavaScript & Gerçek API Entegrasyonu -->
+    <script>
+        const DOGRU_KEY = "@lanetsikerbaba##@@";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const kayitliKey = localStorage.getItem('sorgu_panel_key');
+            if (kayitliKey === DOGRU_KEY) {
+                girisBasariliGoster();
+            }
+        });
+
+        function keyKontrol(event) {
+            event.preventDefault();
+            const girilenDeger = document.getElementById('key-input').value.trim();
+            c
