@@ -22,8 +22,11 @@
         /* Üst Bar */
         .navbar { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border-bottom: 1px solid var(--border-color); background: rgba(11, 19, 41, 0.7); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
         .nav-left { display: flex; align-items: center; gap: 12px; }
-        .menu-btn { background: none; border: none; color: white; font-size: 24px; cursor: pointer; display: flex; flex-direction: column; gap: 5px; }
-        .menu-btn span { width: 22px; height: 2px; background: white; border-radius: 2px; }
+        
+        /* 3 Çizgi Menü Butonu */
+        .menu-btn { background: transparent; border: none; color: white; cursor: pointer; display: flex; flex-direction: column; gap: 5px; padding: 5px; z-index: 101; }
+        .menu-btn span { width: 22px; height: 2px; background: white; border-radius: 2px; display: block; }
+        
         .logo-area h2 { font-size: 18px; letter-spacing: 1px; color: #fff; font-weight: 800; }
         .logo-area span { font-size: 10px; color: var(--text-muted); display: block; }
         
@@ -35,6 +38,259 @@
         .content { padding: 20px; flex: 1; overflow-y: auto; }
         
         .welcome-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; text-align: center; margin-bottom: 20px; }
+        .welcome-card h3 { font-size: 16px; margin-bottom: 8px; }
+        .welcome-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 15px; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .stat-box { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; text-align: center; }
+        .stat-box .num { font-size: 22px; font-weight: bold; color: var(--accent-color); margin-bottom: 5px; }
+        .stat-box .lbl { font-size: 12px; color: var(--text-muted); }
+
+        /* Form Elemanları */
+        .form-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; margin-bottom: 20px; display: none; }
+        .form-card.active { display: block; }
+        .form-title { font-size: 16px; font-weight: bold; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+        .form-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 15px; }
+        
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+        .input-group input { width: 100%; background: #050b14; border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; color: white; font-size: 14px; outline: none; }
+        .input-group input:focus { border-color: var(--accent-color); }
+
+        .btn-action { width: 100%; background: linear-gradient(135deg, #0ea5e9, #0284c7); color: white; border: none; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .btn-action:hover { opacity: 0.9; }
+
+        .result-box { background: #030712; border: 1px solid var(--border-color); border-radius: 10px; padding: 15px; margin-top: 15px; font-family: monospace; font-size: 12px; color: #34d399; max-height: 250px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+
+        /* Hakkında Kartı */
+        .about-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; margin-bottom: 20px; }
+        .about-card h4 { font-size: 15px; margin-bottom: 10px; color: #facc15; }
+        .about-card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 12px; }
+        .feature-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+        .pill { background: #1e293b; font-size: 11px; padding: 5px 10px; border-radius: 6px; color: #cbd5e1; border: 1px solid #334155; }
+
+        /* Sol Menü (Drawer) */
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #080e1d; border-right: 1px solid var(--border-color); z-index: 1000; transition: all 0.3s ease-in-out; display: flex; flex-direction: column; }
+        .sidebar.open { left: 0 !important; }
+        .sidebar-header { padding: 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .sidebar-header h3 { font-size: 16px; color: var(--accent-color); }
+        .close-menu { background: none; border: none; color: white; font-size: 20px; cursor: pointer; padding: 5px; }
+        
+        .sidebar-menu { padding: 15px; overflow-y: auto; flex: 1; }
+        .menu-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; color: #cbd5e1; text-decoration: none; border-radius: 8px; font-size: 13px; margin-bottom: 5px; transition: 0.2s; cursor: pointer; }
+        .menu-item:hover, .menu-item.active { background: #1e293b; color: white; }
+
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(3px); z-index: 999; display: none; }
+        .overlay.active { display: block !important; }
+
+        .footer-net { text-align: center; padding: 15px; font-size: 11px; color: var(--text-muted); border-top: 1px solid var(--border-color); }
+    </style>
+</head>
+<body>
+
+    <div class="overlay" id="overlay" onclick="menuKapat()"></div>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h3>⚡ MENÜ</h3>
+            <button class="close-menu" onclick="menuKapat()">✕</button>
+        </div>
+        <div class="sidebar-menu">
+            <a class="menu-item active" onclick="sayfaGoster('anasayfa')">🏠 Ana Menü</a>
+            <div style="font-size: 11px; color: var(--text-muted); margin: 10px 0 5px 15px; font-weight: bold;">SORGU ARAÇLARI</div>
+            
+            <a class="menu-item" onclick="sayfaGoster('tcpro')">👑 TC Pro Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('adsoyad')">🔍 Ad Soyad Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('olum')">⚰️ Ölüm Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('ogretmen')">📚 Öğretmen Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('sgk')">💼 SGK Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('universite')">🎓 Üniversite Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('sicil')">⚖️ Sicil Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('secmen')">🗳️ Seçmen Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('discord')">💬 Discord Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('adaparsel')">🗺️ Ada Parsel Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('plaka')">🚗 Plaka Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('azeri')">🇦🇿 Azeri Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('operotor')">📡 Operatör Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('sms')">✉️ SMS Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('kizlik')">📋 Kızlık Soyadı Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('aile')">👨‍👩‍👧‍👦 Aile Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('ailepro')">👑 Aile Pro Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('sulale')">🌳 Sülale Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('tcgsm')">📞 TC-GSM Sorgu</a>
+            <a class="menu-item" onclick="sayfaGoster('gsmtc')">📱 GSM-TC Sorgu</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="navbar">
+            <div class="nav-left">
+                <button class="menu-btn" id="btnToggleMenu" onclick="toggleMenu()">
+                    <span></span><span></span><span></span>
+                </button>
+                <div class="logo-area">
+                    <h2>MEMO</h2>
+                    <span>SORGU PANELİ</span>
+                </div>
+            </div>
+            <div class="nav-right">
+                <div class="badge-premium">👑 PREMİUM</div>
+                <button class="btn-cikis" onclick="alert('Oturum açık.')">ÇIKIŞ</button>
+            </div>
+        </div>
+
+        <div class="content">
+            
+            <div id="view-anasayfa" class="view-section">
+                <div class="welcome-card">
+                    <h3>Hoş geldin! Sorgu yapmak için sol üstteki menüyü kullan.</h3>
+                    <p>Sorguları menüden seçerek kolayca gerçekleştirebilirsin.</p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="num">20+</div>
+                        <div class="lbl">TOPLAM SORGU</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="num">⚡</div>
+                        <div class="lbl">HIZLI</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="num">🛡️</div>
+                        <div class="lbl">GÜVENLİ</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="num">🎵</div>
+                        <div class="lbl">MÜZİK</div>
+                    </div>
+                </div>
+
+                <div class="about-card">
+                    <h4>👑 Hakkımda</h4>
+                    <p>Merhaba, ben <b>MEMO!</b> Bu paneli @MEMO_OWNER olarak ben geliştiriyorum. Amacım hızlı, güvenli ve kullanıcı dostu bir sorgulama deneyimi sunmak.</p>
+                    <div class="feature-pills">
+                        <span class="pill">⚡ Hızlı</span>
+                        <span class="pill">🛡️ Güvenli</span>
+                        <span class="pill">👑 Premium</span>
+                        <span class="pill">🔗 API Bağlı</span>
+                        <span class="pill">📱 Mobil Uyumlu</span>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-muted);"><b>Telegram Kanalımız:</b> t.me/CANMEMOASLAN</p>
+                    <p style="font-size: 12px; color: var(--text-muted);"><b>Panel Sahibi:</b> @MEMO_OWNER</p>
+                    <button class="btn-action" onclick="menuAc()">🏠 Menüyü Aç</button>
+                </div>
+            </div>
+
+            <div id="view-tcpro" class="view-section form-card">
+                <div class="form-title">👑 TC Pro Sorgu</div>
+                <div class="form-desc">1 parametre gerektirir: TC Kimlik No</div>
+                <div class="input-group"><label>TC Kimlik No</label><input type="text" id="tcpro_p1" placeholder="11 haneli TC"></div>
+                <button class="btn-action" onclick="sorgula('tcpro')">🔍 SORGULA</button>
+                <button class="btn-action" style="background:#1e293b; margin-top:8px;" onclick="sayfaGoster('anasayfa')">🏠 Ana Menü</button>
+                <div class="result-box" id="res-tcpro">Sonuç burada görünecek...</div>
+            </div>
+
+            <div id="view-adsoyad" class="view-section form-card">
+                <div class="form-title">🔍 Ad Soyad Sorgu</div>
+                <div class="form-desc">2 parametre gerektirir: Ad, Soyad</div>
+                <div class="input-group"><label>Ad</label><input type="text" id="adsoyad_p1" placeholder="Örn: ROKET"></div>
+                <div class="input-group"><label>Soyad</label><input type="text" id="adsoyad_p2" placeholder="Örn: ATAR"></div>
+                <button class="btn-action" onclick="sorgula('adsoyad')">🔍 SORGULA</button>
+                <button class="btn-action" style="background:#1e293b; margin-top:8px;" onclick="sayfaGoster('anasayfa')">🏠 Ana Menü</button>
+                <div class="result-box" id="res-adsoyad">Sonuç burada görünecek...</div>
+            </div>
+
+            <div id="view-olum" class="view-section form-card">
+                <div class="form-title">⚰️ Ölüm Sorgu</div>
+                <div class="form-desc">TC veya Ad/Soyad ile sorgulama</div>
+                <div class="input-group"><label>TC Kimlik (Opsiyonel)</label><input type="text" id="olum_p1" placeholder="11 haneli TC"></div>
+                <div class="input-group"><label>Ad (Opsiyonel)</label><input type="text" id="olum_p2" placeholder="Örn: GÜLSÜM"></div>
+                <div class="input-group"><label>Soyad (Opsiyonel)</label><input type="text" id="olum_p3" placeholder="Örn: UĞURLU"></div>
+                <button class="btn-action" onclick="sorgula('olum')">🔍 SORGULA</button>
+                <button class="btn-action" style="background:#1e293b; margin-top:8px;" onclick="sayfaGoster('anasayfa')">🏠 Ana Menü</button>
+                <div class="result-box" id="res-olum">Sonuç burada görünecek...</div>
+            </div>
+
+            <div id="view-ogretmen" class="view-section form-card">
+                <div class="form-title">📚 Öğretmen Sorgu</div>
+                <div class="form-desc">Ad ve Soyad giriniz</div>
+                <div class="input-group"><label>Ad</label><input type="text" id="ogretmen_p1" placeholder="Örn: GÜLBEN"></div>
+                <div class="input-group"><label>Soyad</label><input type="text" id="ogretmen_p2" placeholder="Örn: ÇINAR"></div>
+                <button class="btn-action" onclick="sorgula('ogretmen')">🔍 SORGULA</button>
+                <button class="btn-action" style="background:#1e293b; margin-top:8px;" onclick="sayfaGoster('anasayfa')">🏠 Ana Menü</button>
+                <div class="result-box" id="res-ogretmen">Sonuç burada görünecek...</div>
+            </div>
+
+            <div id="view-sgk" class="view-section form-card">
+                <div class="form-title">💼 SGK Sorgu</div>
+                <div class="form-desc">TC veya Ad/Soyad giriniz</div>
+                <div class="input-group"><label>TC Kimlik</label><input type="text" id="sgk_p1" placeholder="TC giriniz"></div>
+                <button class="btn-action" onclick="sorgula('sgk')">🔍 SORGULA</button>
+                <button class="btn-action" style="background:#1e293b; margin-top:8px;" onclick="sayfaGoster('anasayfa')">🏠 Ana Menü</button>
+                <div class="result-box" id="res-sgk">Sonuç burada görünecek...</div>
+            </div>
+
+            <div id="view-universite" class="view-section form-card">
+                <div class="form-title">🎓 Üniversite Sorgu</div>
+                <div class="form-desc">TC Kimlik giriniz</div>
+                <div class="input-group"><label>TC Kimlik</label><input type="text" id="universite_p1" placeholder="11 haneli TC"></div>
+                <button class="btn-action" onclick="sorgula('universite')">🔍 SORGULA</button>
+                <button class="btn-action" style="background:#1e293b; margin-top:8px;" onclick="sayfaGoster('anasayfa')">🏠 Ana Menü</button>
+                <div class="result-box" id="res-universite">Sonuç burada görünecek...</div>
+            </div>
+
+            <div id="view-sicil" class="view-section form-card">
+                <div class="form-title">⚖️ Sicil Sorgu</div>
+                <div class="form-desc">TC Kimlik giriniz</div>
+                <div class="input-group"><label>TC Kimlik</label><input type="text" id="sicil_p1" placeholder="11 haneli TC"></div>
+                <button class="btn-action" onclick="sorgula('sicil')">🔍 SORGULA</button>
+                <button class="btn-action" style="background:#1e293b; margin-top:8px;" onclick="sayfaGoster('anasayfa')">🏠 Ana Menü</button>
+                <div class="result-box" id="res-sicil">Sonuç burada görünecek...</div>
+            </div>
+
+            <div id="view-secmen" class="view-section form-card">
+                <div class="form-title">🗳️ Seçmen Sorgu</div>
+                <div class="form-desc">TC Kimlik giriniz</div>
+                <div class="input-group"><label>TC Kimlik</label><input type="text" id="secmen_p1" placeholder="11 haneli TC"></div>
+                <button class="btn-action" onclick="sorgula('secmen')">🔍 SORGULA</button>
+                <button class="btn-action" style="background:#1e293b; margin-top:8px;" onclick="sayfaGoster('anasayfa')">🏠 Ana Menü</button>
+                <div class="result-box" id="res-secmen">Sonuç burada görünecek...</div>
+            </div>
+
+            <div id="view-discord" class="view-section form-card">
+                <div class="form-title">💬 Discord Sorgu</div>
+                <div class="form-desc">Discord ID veya E-posta giriniz</div>
+                <div class="input-group"><label>Discord ID</label><input type="text" id="discord_p1" placeholder="ID giriniz"></div>
+                <div class="input-group"><label>E-posta</label><input type="text" id="discord_p2" placeholder="E-posta giriniz"></div>
+                <button class="btn-action" onclick="sorgula('discord')">🔍 SORGULA</button>
+                <button class="btn-action" style="background:#1e293b; margin-top:8px;" onclick="sayfaGoster('anasayfa')">🏠 Ana Menü</button>
+                <div class="result-box" id="res-discord">Sonuç burada görünecek...</div>
+            </div>
+
+            <div id="view-adaparsel" class="view-section form-card">
+                <div class="form-title">🗺️ Ada Parsel Sorgu</div>
+                <div class="form-desc">İl ve İlçe giriniz</div>
+                <div class="input-group"><label>İl</label><input type="text" id="adaparsel_p1" placeholder="Örn: İSTANBUL"></div>
+                <div class="input-group"><label>İlçe</label><input type="text" id="adaparsel_p2" placeholder="Örn: MALTEPE"></div>
+                <button class="btn-action" onclick="sorgula('adaparsel')">🔍 SORGULA</button>
+                <button class="btn-action" style="background:#1e293b; margin-top:8px;" onclick="sayfaGoster('anasayfa')">🏠 Ana Menü</button>
+                <div class="result-box" id="res-adaparsel">Sonuç burada görünecek...</div>
+            </div>
+
+            <div id="view-plaka" class="view-section form-card">
+                <div class="form-title">🚗 Plaka Sorgu</div>
+                <div class="form-desc">Plaka giriniz</div>
+                <div class="input-group"><label>Plaka</label><input type="text" id="plaka_p1" placeholder="Örn: 34KG4978"></div>
+                <button class="btn-action" onclick="sorgula('plaka')">🔍 SORGULA</button>
+                <button class="btn-action" style="background:#1e293b; margin-top:8px;" onclick="sayfaGoster('anasayfa')">🏠 Ana Menü</button>
+                <div class="result-box" id="res-plaka">Sonuç burada görünecek...</div>
+            </div>
+
+            <div id="view-azeri" class="view-section form-card">
+                <div class="form-title">🇦🇿 Azeri Sorgu</div>
+                <div class="form-desc">Telefon giriniz</div>
+                <div class="input-group"><label>Telefon</label><inp        .welcome-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 14px; padding: 20px; text-align: center; margin-bottom: 20px; }
         .welcome-card h3 { font-size: 16px; margin-bottom: 8px; }
         .welcome-card p { font-size: 13px; color: var(--text-muted); margin-bottom: 15px; }
         
