@@ -1,13 +1,13 @@
 export default async function handler(req, res) {
   const { url } = req.query;
-  if (!url) return res.status(400).json({ error: "URL gerekli" });
-
+  if (!url) {
+    return res.status(400).send("URL eksik");
+  }
   try {
-    const apiRes = await fetch(decodeURIComponent(url));
-    const data = await apiRes.text();
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    return res.status(200).send(data);
-  } catch (err) {
-    return res.status(500).json({ error: "Sunucu hatası" });
+    const response = await fetch(decodeURIComponent(url));
+    const data = await response.text();
+    res.status(200).send(data);
+  } catch (error) {
+    res.status(500).send("Proxy hatasi: " + error.message);
   }
 }
